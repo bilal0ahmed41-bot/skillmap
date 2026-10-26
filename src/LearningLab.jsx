@@ -32,14 +32,13 @@ const COURSES = [
     category: "GRAPHIC DESIGN",
     level: "Beginner",
     icon: Palette,
-    description: "Learn Photoshop step by step with GFXMentor.",
-    playlistId: "PLW-zSkCnZ-gA5Jn6gZtUa6-aG0OoRZyb6",
+    description: "Learn Photoshop step by step with local video lessons.",
     lessons: [
       {
-        title: "GFXMentor Photoshop Playlist",
-        duration: "Full playlist",
+        title: "Photoshop Video Lessons",
+        duration: "Local videos",
         points: [
-          "Watch the lessons in their original playlist order.",
+          "Watch the lessons in order.",
           "Finish watching the course video before continuing.",
           "Complete the knowledge check to unlock the next step."
         ],
@@ -74,13 +73,13 @@ const COURSES = [
       title: "Photoshop Practice",
       description: "Create a simple design using the tools taught in the course.",
       tasks: [
-        "Follow a lesson from the playlist.",
+        "Follow a course lesson.",
         "Practise the demonstrated technique.",
         "Save your practice file.",
         "Export your finished design as an image."
       ],
       deliverable: "A finished Photoshop design.",
-      resource: "https://www.youtube.com/playlist?list=PLW-zSkCnZ-gA5Jn6gZtUa6-aG0OoRZyb6"
+      resource: null
     }
   },
   {
@@ -89,14 +88,13 @@ const COURSES = [
     category: "GRAPHIC DESIGN",
     level: "Beginner",
     icon: Palette,
-    description: "Learn vector design with GFXMentor.",
-    playlistId: "PLW-zSkCnZ-gCq0DjkzY-YapCBEk0lA6lR",
+    description: "Learn vector design through guided course lessons.",
     lessons: [
       {
-        title: "GFXMentor Illustrator Playlist",
-        duration: "Full playlist",
+        title: "Illustrator Lessons",
+        duration: "Course lesson",
         points: [
-          "Follow the videos in their original playlist order.",
+          "Follow the course lessons in order.",
           "Practise the tools shown by the instructor.",
           "Complete the knowledge check after studying."
         ],
@@ -131,13 +129,13 @@ const COURSES = [
       title: "Vector Design Practice",
       description: "Create a simple vector design using the course techniques.",
       tasks: [
-        "Follow a lesson from the playlist.",
+        "Follow a course lesson.",
         "Practise creating and editing vector shapes.",
         "Create a simple design.",
         "Export your finished design."
       ],
       deliverable: "A finished vector design.",
-      resource: "https://www.youtube.com/playlist?list=PLW-zSkCnZ-gCq0DjkzY-YapCBEk0lA6lR"
+      resource: null
     }
   }
 ];
@@ -617,14 +615,16 @@ export default function LearningLab({ user, onBack }) {
                 <RotateCcw size={15} /> Reset checklist
               </button>
 
-              <a
-                className="lab-primary"
-                href={course.project.resource}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Open learning resource <ChevronRight size={16} />
-              </a>
+              {course.project.resource && (
+                <a
+                  className="lab-primary"
+                  href={course.project.resource}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Open learning resource <ChevronRight size={16} />
+                </a>
+              )}
             </div>
           </section>
         </section>

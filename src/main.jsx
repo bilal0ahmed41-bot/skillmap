@@ -23,18 +23,30 @@ import {
   Sparkles,
   Mail,
   KeyRound,
-  RefreshCw,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { supabase } from "./supabase";
-import YouTubeLesson from "./YouTubeLesson";
 import "./styles.css";
+
+const PHOTOSHOP_VIDEOS = Object.entries(
+  import.meta.glob("../videos/*.mp4", {
+    eager: true,
+    query: "?url",
+    import: "default",
+  })
+)
+  .sort(([firstPath], [secondPath]) =>
+    firstPath.localeCompare(secondPath, undefined, { numeric: true })
+  )
+  .map(([, videoUrl]) => videoUrl);
 
 const COURSES = [
   {
     id: "photoshop",
     title: "Adobe Photoshop",
     description: "Learn photo editing, selections, layers, and creative design.",
-    playlistId: "PLW-zSkCnZ-gA5Jn6gZtUa6-aG0OoRZyb6",
+    videos: PHOTOSHOP_VIDEOS,
     icon: "PS",
     color: "#4f8cff",
     lessonsLabel: "Photoshop",
@@ -43,63 +55,94 @@ const COURSES = [
     id: "illustrator",
     title: "Adobe Illustrator",
     description: "Learn vector graphics, shapes, typography, and illustration.",
-    playlistId: "PLW-zSkCnZ-gCq0DjkzY-YapCBEk0lA6lR",
+    videos: [],
     icon: "Ai",
     color: "#ff9d45",
     lessonsLabel: "Illustrator",
   },
 ];
 
+function rotateCorrectAnswers(lessonQuizzes) {
+  let answerPosition = 0;
+
+  return lessonQuizzes.map((questions) =>
+    questions.map((question) => {
+      const answer = answerPosition++ % question.options.length;
+      const options = question.options.filter(
+        (_, index) => index !== question.answer
+      );
+      options.splice(answer, 0, question.options[question.answer]);
+      return { ...question, options, answer };
+    })
+  );
+}
+
 const QUIZZES = {
-  photoshop: [
-    {
-      question: "What is the main purpose of layers in Photoshop?",
-      options: [
-        "To keep different design elements separate",
-        "To increase internet speed",
-        "To install new fonts automatically",
-        "To export every file as a video",
-      ],
-      answer: 0,
-    },
-    {
-      question: "Which tool is commonly used to select part of an image?",
-      options: ["Hand Tool", "Marquee Tool", "Zoom Tool", "Notes Tool"],
-      answer: 1,
-    },
-    {
-      question: "Which file format preserves Photoshop layers?",
-      options: ["JPG", "PNG", "PSD", "GIF"],
-      answer: 2,
-    },
-  ],
-  illustrator: [
-    {
-      question: "What is Adobe Illustrator mainly used for?",
-      options: [
-        "Editing spreadsheets",
-        "Creating vector graphics",
-        "Recording podcasts",
-        "Managing databases",
-      ],
-      answer: 1,
-    },
-    {
-      question: "What is a key advantage of vector graphics?",
-      options: [
-        "They cannot use colors",
-        "They only work on phones",
-        "They can scale without losing sharpness",
-        "They always have a smaller file size",
-      ],
-      answer: 2,
-    },
-    {
-      question: "Which tool is useful for drawing freeform vector paths?",
-      options: ["Pen Tool", "Crop Tool", "Blur Tool", "Eraser in Photoshop"],
-      answer: 0,
-    },
-  ],
+  photoshop: rotateCorrectAnswers([
+    [
+      { question: "Where are Photoshop's main editing tools usually found?", options: ["In the toolbar", "In the status bar", "In the title bar", "In the file browser"], answer: 0 },
+      { question: "What does the Layers panel help you manage?", options: ["Separate image elements", "Internet connections", "Printer settings", "Keyboard language"], answer: 0 },
+      { question: "What is a good first step before editing an image?", options: ["Open the image and inspect its document", "Flatten every layer", "Delete the background", "Export it as a GIF"], answer: 0 },
+      { question: "Which tool is used to change the visible scale of the canvas?", options: ["Zoom Tool", "Brush Tool", "Crop Tool", "Type Tool"], answer: 0 },
+      { question: "Which format is best for keeping an editable Photoshop project?", options: ["PSD", "JPG", "BMP", "TXT"], answer: 0 },
+    ],
+    [
+      { question: "Which tool makes a rectangular or elliptical selection?", options: ["Marquee Tool", "Hand Tool", "Blur Tool", "Type Tool"], answer: 0 },
+      { question: "What does the Lasso Tool let you do?", options: ["Draw a freeform selection", "Adjust image brightness", "Add editable text", "Rotate the canvas view"], answer: 0 },
+      { question: "How can you remove an active selection outline?", options: ["Choose Deselect", "Flatten the image", "Save as JPG", "Hide the toolbar"], answer: 0 },
+      { question: "What does Select and Mask help refine?", options: ["Selection edges", "Audio levels", "Layer names", "Export resolution"], answer: 0 },
+      { question: "Why use a selection before applying an edit?", options: ["To limit the edit to a chosen area", "To permanently lock the document", "To convert pixels into vectors", "To remove all layer visibility"], answer: 0 },
+    ],
+    [
+      { question: "What happens when you hide a layer using its eye icon?", options: ["The layer is temporarily not visible", "The layer is permanently deleted", "The image is exported", "The canvas is resized"], answer: 0 },
+      { question: "How does layer order affect a composite?", options: ["Layers higher in the stack can cover lower ones", "It changes the file format", "It changes the monitor brightness", "It removes transparency"], answer: 0 },
+      { question: "What is a useful reason to rename a layer?", options: ["To identify its contents quickly", "To increase its resolution", "To merge it automatically", "To change the canvas size"], answer: 0 },
+      { question: "What does layer opacity control?", options: ["How transparent the layer appears", "How large the document is", "How many pixels are selected", "How fast the file exports"], answer: 0 },
+      { question: "Why keep image elements on separate layers?", options: ["You can edit them independently", "They become vector paths", "They cannot be moved", "They are automatically backed up online"], answer: 0 },
+    ],
+    [
+      { question: "On a layer mask, what does black generally do?", options: ["Hides that part of the layer", "Deletes the whole document", "Adds a color fill", "Locks the layer"], answer: 0 },
+      { question: "On a layer mask, what does white generally do?", options: ["Reveals that part of the layer", "Exports the image", "Blurs the canvas", "Hides the toolbar"], answer: 0 },
+      { question: "Why use a mask instead of erasing pixels?", options: ["A mask lets you revise what is hidden", "A mask permanently removes the layer", "A mask changes pixels into text", "A mask prevents saving"], answer: 0 },
+      { question: "Where should you paint to hide part of a masked layer?", options: ["On the layer mask thumbnail", "On the document tab", "On the rulers", "On the status bar"], answer: 0 },
+      { question: "What does a gray area on a mask usually create?", options: ["Partial transparency", "A new layer", "A selection outline", "A color profile"], answer: 0 },
+    ],
+    [
+      { question: "Which tool is commonly used to remove small blemishes?", options: ["Spot Healing Brush", "Type Tool", "Gradient Tool", "Hand Tool"], answer: 0 },
+      { question: "What does the Clone Stamp use to paint over an area?", options: ["Pixels sampled from another area", "A new font", "A vector formula", "The document title"], answer: 0 },
+      { question: "Why retouch on a separate layer when possible?", options: ["It keeps the original pixels easier to preserve", "It makes the image a video", "It removes the need to save", "It converts the layer to text"], answer: 0 },
+      { question: "What should you check after using a healing tool?", options: ["Whether nearby texture and edges still look natural", "Whether the file name has changed", "Whether the toolbar is hidden", "Whether the canvas is locked"], answer: 0 },
+      { question: "What is a sensible way to sample for Clone Stamp retouching?", options: ["Choose a nearby area with similar texture and tone", "Sample from an unrelated flat color", "Sample from the layer name", "Avoid sampling any pixels"], answer: 0 },
+    ],
+    [
+      { question: "Which tool creates editable text in Photoshop?", options: ["Type Tool", "Crop Tool", "Dodge Tool", "Hand Tool"], answer: 0 },
+      { question: "What is a benefit of keeping text on its own layer?", options: ["You can edit its wording and appearance separately", "It automatically sharpens the photo", "It removes all other layers", "It prevents font changes"], answer: 0 },
+      { question: "What does a shape layer preserve?", options: ["An editable shape", "A flattened screenshot only", "A video timeline", "A color profile"], answer: 0 },
+      { question: "Which change can improve text hierarchy in a design?", options: ["Vary size or weight for headings and supporting text", "Use identical styling for every line", "Place text outside the canvas", "Hide the text layer"], answer: 0 },
+      { question: "What should you do after transforming a text or shape layer?", options: ["Review its placement and scale on the canvas", "Delete the layer mask", "Switch to another file format", "Clear the document history"], answer: 0 },
+    ],
+    [
+      { question: "What is a key benefit of an adjustment layer?", options: ["It changes image appearance without directly replacing pixels", "It deletes hidden layers", "It converts the image to audio", "It locks the canvas size"], answer: 0 },
+      { question: "Which adjustment is commonly used to change color intensity?", options: ["Hue/Saturation", "Canvas Size", "Ruler Settings", "Perspective Crop"], answer: 0 },
+      { question: "What does a Levels adjustment primarily help control?", options: ["Shadows, midtones, and highlights", "Layer names", "Text spelling", "Video playback speed"], answer: 0 },
+      { question: "How can you limit an adjustment layer to one layer below it?", options: ["Create a clipping mask", "Flatten the document", "Hide the Layers panel", "Change the file extension"], answer: 0 },
+      { question: "Why compare an edited image with its original appearance?", options: ["To make sure the correction improves the image", "To remove the original file", "To convert layers into selections", "To change the document language"], answer: 0 },
+    ],
+    [
+      { question: "What is a benefit of converting a layer to a Smart Object before filtering?", options: ["You can adjust or remove Smart Filters later", "It permanently flattens all layers", "It turns pixels into audio", "It disables saving"], answer: 0 },
+      { question: "What does a blur filter generally change?", options: ["Image sharpness and detail", "Layer order", "Document name", "Selection mode"], answer: 0 },
+      { question: "Where can you revisit a Smart Filter after applying it?", options: ["Under its Smart Object layer in the Layers panel", "In the file name", "In the color picker only", "In the operating system taskbar"], answer: 0 },
+      { question: "What is a good practice when applying a strong effect?", options: ["Review the result at different zoom levels", "Hide every layer", "Delete the source image", "Export before checking"], answer: 0 },
+      { question: "How can you reduce the strength of a Smart Filter?", options: ["Adjust the filter blending options", "Rename the document", "Change the canvas units", "Deselect the layer"], answer: 0 },
+    ],
+    [
+      { question: "Which format usually preserves transparency for a web graphic?", options: ["PNG", "JPG", "TXT", "BMP only"], answer: 0 },
+      { question: "Which format is commonly used for a compact photographic image?", options: ["JPG", "PSD", "SVG", "TIFF only"], answer: 0 },
+      { question: "Which file should you keep if you want to continue editing layers later?", options: ["A PSD project", "A flattened JPG only", "A plain text file", "A screenshot of the canvas"], answer: 0 },
+      { question: "What should you check before exporting?", options: ["The image dimensions and intended use", "The computer volume", "The keyboard layout", "The hidden panels"], answer: 0 },
+      { question: "Why review the exported file after saving?", options: ["To confirm it looks correct in the chosen format", "To automatically restore deleted layers", "To change the source video", "To unlock the toolbar"], answer: 0 },
+    ],
+  ]),
 };
 
 const PAGE_ITEMS = [
@@ -124,14 +167,15 @@ function App() {
   const [authMode, setAuthMode] = useState("login");
   const [authEmail, setAuthEmail] = useState("");
   const [authPassword, setAuthPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [authName, setAuthName] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [authBusy, setAuthBusy] = useState(false);
 
   const [page, setPage] = useState("dashboard");
   const [selectedCourseId, setSelectedCourseId] = useState(null);
+  const [lessonSelected, setLessonSelected] = useState(false);
   const [lessonIndex, setLessonIndex] = useState(0);
-  const [playlistVideos, setPlaylistVideos] = useState({});
   const [videoEnded, setVideoEnded] = useState(false);
   const [answers, setAnswers] = useState({});
   const [quizMessage, setQuizMessage] = useState("");
@@ -147,34 +191,20 @@ function App() {
   const user = session?.user ?? null;
   const selectedCourse =
     COURSES.find((course) => course.id === selectedCourseId) ?? null;
-  const videos = selectedCourse
-    ? playlistVideos[selectedCourse.id] || []
-    : [];
+  const videos = selectedCourse?.videos ?? [];
   const currentVideo = videos[lessonIndex] ?? null;
   const currentQuiz = selectedCourse
     ? QUIZZES[selectedCourse.id] || []
     : [];
-  const quiz = currentQuiz.length
-    ? currentQuiz[lessonIndex % currentQuiz.length]
-    : null;
+  const quiz = currentQuiz[lessonIndex] || [];
 
   const completedCount = Object.keys(completed).filter(
     (key) => completed[key] === true
   ).length;
 
-  const totalLessons = Object.values(playlistVideos).reduce(
-    (total, list) => total + list.length,
+  const totalLessons = COURSES.reduce(
+    (total, course) => total + course.videos.length,
     0
-  );
-
-  const allKnownLessons = Object.entries(playlistVideos).reduce(
-    (all, [courseId, list]) => {
-      list.forEach((video, index) => {
-        all.push({ key: `${courseId}:${index}`, courseId, video, index });
-      });
-      return all;
-    },
-    []
   );
 
   const overallPercent = totalLessons
@@ -184,7 +214,7 @@ function App() {
   const courseProgress = useMemo(
     () =>
       COURSES.map((course) => {
-        const list = playlistVideos[course.id] || [];
+        const list = course.videos;
         const done = list.filter(
           (_, index) => completed[`${course.id}:${index}`] === true
         ).length;
@@ -192,10 +222,13 @@ function App() {
           ...course,
           lessonCount: list.length,
           completedCount: done,
+          nextLessonIndex: list.findIndex(
+            (_, index) => completed[`${course.id}:${index}`] !== true
+          ),
           percent: list.length ? Math.round((done / list.length) * 100) : 0,
         };
       }),
-    [playlistVideos, completed]
+    [completed]
   );
 
   useEffect(() => {
@@ -371,37 +404,15 @@ function App() {
     setPage("dashboard");
   };
 
-  const handlePlaylistLoaded = useCallback(
-    (courseId, ids) => {
-      setPlaylistVideos((previous) => {
-        const oldIds = previous[courseId] || [];
-
-        if (
-          oldIds.length === ids.length &&
-          oldIds.every((id, index) => id === ids[index])
-        ) {
-          return previous;
-        }
-
-        return { ...previous, [courseId]: ids };
-      });
-    },
-    []
-  );
-
-  const handleSelectedPlaylistLoaded = useCallback(
-    (ids) => {
-      if (selectedCourseId) {
-        handlePlaylistLoaded(selectedCourseId, ids);
-      }
-    },
-    [selectedCourseId, handlePlaylistLoaded]
-  );
-
-
   const openCourse = (courseId) => {
+    const course = COURSES.find((item) => item.id === courseId);
+    const nextLessonIndex = course?.videos.findIndex(
+      (_, index) => completed[`${courseId}:${index}`] !== true
+    ) ?? -1;
+
     setSelectedCourseId(courseId);
-    setLessonIndex(0);
+    setLessonSelected(false);
+    setLessonIndex(nextLessonIndex >= 0 ? nextLessonIndex : 0);
     setVideoEnded(false);
     setAnswers({});
     setQuizPassed(false);
@@ -412,8 +423,15 @@ function App() {
 
   const returnToCourseList = () => {
     setSelectedCourseId(null);
+    setLessonSelected(false);
     setVideoEnded(false);
     setAnswers({});
+    setQuizPassed(false);
+    setQuizMessage("");
+  };
+
+  const returnToLessonList = () => {
+    setLessonSelected(false);
     setQuizPassed(false);
     setQuizMessage("");
   };
@@ -425,6 +443,7 @@ function App() {
 
   const selectLesson = (index) => {
     if (!selectedCourse || !isLessonUnlocked(selectedCourse.id, index)) return;
+    setLessonSelected(true);
     setLessonIndex(index);
     setVideoEnded(false);
     setAnswers({});
@@ -433,18 +452,31 @@ function App() {
   };
 
   const submitQuiz = async () => {
-    if (!selectedCourse || !quiz) return;
-
-    const isCorrect = Number(answers[lessonIndex]) === quiz.answer;
-    if (!isCorrect) {
-      setQuizPassed(false);
-      setQuizMessage("Not quite. Review the lesson and try again.");
-      return;
-    }
+    if (!selectedCourse || !quiz.length) return;
 
     if (!videoEnded) {
       setQuizPassed(false);
-      setQuizMessage("Finish watching this lesson before completing its quiz.");
+      setQuizMessage("Finish watching this lesson before submitting its quiz.");
+      return;
+    }
+
+    const unanswered = quiz.some(
+      (_, index) => answers[`${lessonIndex}:${index}`] === undefined
+    );
+    if (unanswered) {
+      setQuizPassed(false);
+      setQuizMessage("Answer all five questions before submitting.");
+      return;
+    }
+
+    const correctCount = quiz.filter(
+      (question, index) =>
+        Number(answers[`${lessonIndex}:${index}`]) === question.answer
+    ).length;
+    const score = Math.round((correctCount / quiz.length) * 100);
+    if (score < 70) {
+      setQuizPassed(false);
+      setQuizMessage(`You scored ${score}%. You need at least 70% to pass. Review and try again.`);
       return;
     }
 
@@ -452,7 +484,7 @@ function App() {
     const nextCompleted = { ...completed, [key]: true };
 
     setQuizPassed(true);
-    setQuizMessage("Correct! Lesson completed and your progress is being saved.");
+    setQuizMessage(`You scored ${score}%. You passed, and your progress is being saved.`);
     await saveProgress(
       nextCompleted,
       `Completed ${selectedCourse.title} — lesson ${lessonIndex + 1}`
@@ -463,7 +495,12 @@ function App() {
     if (!selectedCourse || !videos.length) return;
     const nextIndex = lessonIndex + 1;
     if (nextIndex < videos.length && isLessonUnlocked(selectedCourse.id, nextIndex)) {
-      selectLesson(nextIndex);
+      setLessonIndex(nextIndex);
+      setLessonSelected(false);
+      setVideoEnded(false);
+      setAnswers({});
+      setQuizPassed(false);
+      setQuizMessage("");
     }
   };
 
@@ -567,7 +604,8 @@ function App() {
                   <div className="sm-input-wrap">
                     <KeyRound size={17} />
                     <input
-                      type="password"
+                      className="sm-password-input"
+                      type={showPassword ? "text" : "password"}
                       value={authPassword}
                       onChange={(e) => setAuthPassword(e.target.value)}
                       placeholder="At least 6 characters"
@@ -577,6 +615,15 @@ function App() {
                         authMode === "signup" ? "new-password" : "current-password"
                       }
                     />
+                    <button
+                      className="sm-password-toggle"
+                      type="button"
+                      onClick={() => setShowPassword((visible) => !visible)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
                   </div>
                 </label>
               )}
@@ -775,7 +822,7 @@ function App() {
         </header>
 
         <div className="sm-content">
-          {selectedCourse ? (
+          {selectedCourse && lessonSelected ? (
             <CourseView
               course={selectedCourse}
               videos={videos}
@@ -784,10 +831,6 @@ function App() {
               completed={completed}
               videoEnded={videoEnded}
 setVideoEnded={setVideoEnded}
-handlePlaylistLoaded={handleSelectedPlaylistLoaded}
-              
-              selectLesson={selectLesson}
-              isLessonUnlocked={isLessonUnlocked}
               quiz={quiz}
               answers={answers}
               setAnswers={setAnswers}
@@ -795,8 +838,18 @@ handlePlaylistLoaded={handleSelectedPlaylistLoaded}
               quizPassed={quizPassed}
               submitQuiz={submitQuiz}
               goToNextLesson={goToNextLesson}
-              returnToCourseList={returnToCourseList}
+              returnToLessonList={returnToLessonList}
               loading={progressLoading}
+            />
+          ) : selectedCourse ? (
+            <CourseLessonsPage
+              course={selectedCourse}
+              videos={videos}
+              lessonIndex={lessonIndex}
+              completed={completed}
+              selectLesson={selectLesson}
+              isLessonUnlocked={isLessonUnlocked}
+              returnToCourseList={returnToCourseList}
             />
           ) : page === "dashboard" ? (
             <Dashboard
@@ -958,11 +1011,18 @@ function StatCard({ icon: Icon, label, value, detail }) {
 }
 
 function CourseCard({ course, openCourse }) {
+  const isComplete = course.lessonCount > 0 && course.nextLessonIndex === -1;
+  const actionLabel = isComplete
+    ? "Review course"
+    : course.completedCount > 0
+    ? `Continue lesson ${course.nextLessonIndex + 1}`
+    : "Start lesson 1";
+
   return (
     <article className="sm-course-card">
       <div className="sm-course-card-top">
         <div className="sm-course-app-icon" style={{ "--course-color": course.color }}>{course.icon}</div>
-        <span className="sm-course-tag">{course.lessonCount ? `${course.lessonCount} lessons` : "Video course"}</span>
+        <span className="sm-course-tag">{course.lessonCount ? `${course.lessonCount} lessons` : "Coming soon"}</span>
       </div>
       <h3>{course.title}</h3>
       <p>{course.description}</p>
@@ -971,8 +1031,8 @@ function CourseCard({ course, openCourse }) {
         <strong>{course.percent}%</strong>
       </div>
       <div className="sm-progress-track"><span style={{ width: `${course.percent}%`, background: course.color }} /></div>
-      <button className="sm-course-open-button" onClick={() => openCourse(course.id)}>
-        {course.completedCount ? "Continue learning" : "Start learning"} <ChevronRight size={17} />
+      <button className="sm-course-open-button" onClick={() => openCourse(course.id)} disabled={!course.lessonCount}>
+        {course.lessonCount ? <>{actionLabel} <ChevronRight size={17} /></> : "Lessons coming soon"}
       </button>
     </article>
   );
@@ -999,34 +1059,21 @@ function SkillsPage({ courses, openCourse }) {
   );
 }
 
-function CourseView({
+function CourseLessonsPage({
   course,
   videos,
   lessonIndex,
-  currentVideo,
   completed,
-  videoEnded,
-  setVideoEnded,
-  handlePlaylistLoaded,
   selectLesson,
   isLessonUnlocked,
-  quiz,
-  answers,
-  setAnswers,
-  quizMessage,
-  quizPassed,
-  submitQuiz,
-  goToNextLesson,
   returnToCourseList,
-  loading,
 }) {
-  const [lessonListOpen, setLessonListOpen] = useState(true);
-  const lessonKey = `${course.id}:${lessonIndex}`;
-  const isCompleted = completed[lessonKey] === true;
-
-  useEffect(() => {
-    setVideoEnded(false);
-  }, [course.id, lessonIndex, setVideoEnded]);
+  const completedLessonCount = videos.filter(
+    (_, index) => completed[`${course.id}:${index}`] === true
+  ).length;
+  const coursePercent = videos.length
+    ? Math.round((completedLessonCount / videos.length) * 100)
+    : 0;
 
   return (
     <>
@@ -1035,90 +1082,215 @@ function CourseView({
       </button>
 
       <PageHeading
-        eyebrow="COURSE WORKSPACE"
+        eyebrow="COURSE LESSONS"
         title={course.title}
-        description={course.description}
+        description="Choose a lesson to start learning. Complete lessons in order to unlock the next one."
+      />
+
+      {videos.length > 0 ? (
+        <>
+          <section className="sm-course-overview">
+            <div className="sm-course-app-icon" style={{ "--course-color": course.color }}>
+              {course.icon}
+            </div>
+            <div className="sm-course-overview-copy">
+              <strong>{completedLessonCount} of {videos.length} lessons complete</strong>
+              <span>{completedLessonCount === videos.length ? "Course complete" : `Next up: Lesson ${lessonIndex + 1}`}</span>
+            </div>
+            <strong className="sm-course-overview-percent">{coursePercent}%</strong>
+            <div className="sm-progress-track">
+              <span style={{ width: `${coursePercent}%`, background: course.color }} />
+            </div>
+          </section>
+
+          <div className="sm-course-lesson-grid">
+            {videos.map((video, index) => {
+              const isCompleted = completed[`${course.id}:${index}`] === true;
+              const isUnlocked = isLessonUnlocked(course.id, index);
+              const isNext = index === lessonIndex && !isCompleted;
+              const status = isCompleted
+                ? "Completed"
+                : !isUnlocked
+                ? "Locked"
+                : isNext
+                ? "Recommended next"
+                : "Available";
+
+              return (
+                <button
+                  className={`sm-course-lesson-card ${isNext ? "recommended" : ""}`}
+                  key={`${video}-${index}`}
+                  disabled={!isUnlocked}
+                  onClick={() => selectLesson(index)}
+                >
+                  <span className="sm-course-lesson-top">
+                    <span className="sm-course-lesson-icon">
+                      {isCompleted ? <CheckCircle2 size={19} /> : isUnlocked ? <PlayCircle size={19} /> : <LockKeyhole size={18} />}
+                    </span>
+                    <span className="sm-course-lesson-status">{status}</span>
+                  </span>
+                  <strong>Lesson {index + 1}</strong>
+                  <span className="sm-course-lesson-caption">Photoshop video lesson</span>
+                  <span className="sm-course-lesson-action">
+                    {isUnlocked ? isCompleted ? "Review lesson" : "Start lesson" : "Complete the previous lesson first"}
+                    {isUnlocked && <ChevronRight size={16} />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <div className="sm-player-placeholder">
+          <h3>Lessons coming soon</h3>
+          <p>This course does not have any videos available yet.</p>
+        </div>
+      )}
+    </>
+  );
+}
+
+function CourseView({
+  course,
+  videos,
+  lessonIndex,
+  currentVideo,
+  completed,
+  videoEnded,
+  setVideoEnded,
+  quiz,
+  answers,
+  setAnswers,
+  quizMessage,
+  quizPassed,
+  submitQuiz,
+  goToNextLesson,
+  returnToLessonList,
+  loading,
+}) {
+  const [lessonStage, setLessonStage] = useState("video");
+  const lessonKey = `${course.id}:${lessonIndex}`;
+  const isCompleted = completed[lessonKey] === true;
+
+  useEffect(() => {
+    setVideoEnded(false);
+    setLessonStage("video");
+  }, [course.id, lessonIndex, setVideoEnded]);
+
+  return (
+    <>
+      <button
+        className="sm-back-button"
+        onClick={lessonStage === "quiz" ? () => setLessonStage("video") : returnToLessonList}
+      >
+        <ArrowLeft size={17} /> {lessonStage === "quiz" ? "Back to video" : "All lessons"}
+      </button>
+
+      <PageHeading
+        eyebrow={lessonStage === "quiz" ? "LESSON QUIZ" : "COURSE WORKSPACE"}
+        title={lessonStage === "quiz" ? `Lesson ${lessonIndex + 1} quiz` : course.title}
+        description={lessonStage === "quiz" ? "Score at least 70% to complete this lesson and unlock the next one." : course.description}
       />
 
       <div className="sm-lesson-layout">
         <div className="sm-lesson-main">
-          <section className="sm-video-panel">
-            <div className="sm-video-panel-heading">
-              <div>
-                <span className="sm-eyebrow">LESSON {videos.length ? lessonIndex + 1 : "—"}</span>
-                <h2>{currentVideo ? `Lesson ${lessonIndex + 1}` : "Loading your lessons"}</h2>
+          {lessonStage === "video" ? (
+            <section className="sm-video-panel">
+              <div className="sm-video-panel-heading">
+                <div>
+                  <span className="sm-eyebrow">LESSON {videos.length ? lessonIndex + 1 : "—"}</span>
+                  <h2>{currentVideo ? `Lesson ${lessonIndex + 1}` : "No lessons available"}</h2>
+                </div>
+                {isCompleted && <span className="sm-complete-pill"><CheckCircle2 size={15} /> Completed</span>}
               </div>
-              {isCompleted && <span className="sm-complete-pill"><CheckCircle2 size={15} /> Completed</span>}
-            </div>
 
-           
-<>
-  <YouTubeLesson
-    key={course.id}
-    playlistId={course.playlistId}
-    videoId={currentVideo}
-    onPlaylistLoaded={handlePlaylistLoaded}
-    onVideoEnded={() => setVideoEnded(true)}
-  />
+              {currentVideo ? (
+                <video
+                  className="sm-local-video"
+                  src={currentVideo}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  onEnded={() => setVideoEnded(true)}
+                />
+              ) : (
+                <div className="sm-player-placeholder">
+                  <h3>No local lessons available</h3>
+                  <p>There are no video files configured for this course yet.</p>
+                </div>
+              )}
 
-  {videos.length === 0 ? (
-    <div className="sm-player-placeholder">
-      <RefreshCw size={28} />
-      <h3>Loading playlist</h3>
-      <p>
-        The course videos will appear here. If this takes too long,
-        check that the playlist is public.
-      </p>
-    </div>
-  ) : (
-    <div className="sm-video-meta">
-      <div>
-        <PlayCircle size={17} />
-        <span>{`Video ${lessonIndex + 1} of ${videos.length}`}</span>
-      </div>
+              {videos.length > 0 && (
+                <div className="sm-video-meta">
+                  <div>
+                    <PlayCircle size={17} />
+                    <span>{`Video ${lessonIndex + 1} of ${videos.length}`}</span>
+                  </div>
 
-      {videoEnded ? (
-        <span className="sm-success-text">
-          <CheckCircle2 size={16} /> Video finished
-        </span>
-      ) : (
-        <span className="sm-muted">
-          Finish the video to unlock quiz completion
-        </span>
-      )}
-    </div>
-  )}
-</>
+                  {videoEnded ? (
+                    <span className="sm-success-text">
+                      <CheckCircle2 size={16} /> Video finished
+                    </span>
+                  ) : (
+                    <span className="sm-muted">
+                      Finish the video to continue
+                    </span>
+                  )}
+                </div>
+              )}
 
-          </section>
+              {videoEnded && videos.length > 0 && (
+                <div className="sm-video-next-row">
+                  <button
+                    className="sm-primary-button"
+                    onClick={() => setLessonStage("quiz")}
+                  >
+                    Next: Quiz <ChevronRight size={17} />
+                  </button>
+                </div>
+              )}
+            </section>
+          ) : (
 
           <section className="sm-quiz-panel">
             <div className="sm-panel-heading">
               <div><span className="sm-eyebrow">KNOWLEDGE CHECK</span><h2>Lesson quiz</h2></div>
-              <span className="sm-quiz-count">1 question</span>
+              <span className="sm-quiz-count">{quiz.length} questions</span>
             </div>
             {!videos.length ? (
-              <p className="sm-muted">The quiz will be available when the playlist loads.</p>
+              <p className="sm-muted">The quiz is unavailable because this course has no videos.</p>
             ) : (
               <>
-                <h3>{quiz?.question || "Review this lesson and check your understanding."}</h3>
-                <div className="sm-quiz-options">
-                  {(quiz?.options || []).map((option, index) => (
-                    <label
-                      className={`sm-quiz-option ${Number(answers[lessonIndex]) === index ? "selected" : ""}`}
-                      key={option}
-                    >
-                      <input
-                        type="radio"
-                        name={`quiz-${course.id}-${lessonIndex}`}
-                        checked={Number(answers[lessonIndex]) === index}
-                        onChange={() => {
-                          setAnswers((previous) => ({ ...previous, [lessonIndex]: index }));
-                        }}
-                      />
-                      <span className="sm-option-letter">{String.fromCharCode(65 + index)}</span>
-                      <span>{option}</span>
-                    </label>
+                <div className="sm-quiz-questions">
+                  {quiz.map((question, questionIndex) => (
+                    <div className="sm-quiz-question" key={question.question}>
+                      <h3>{questionIndex + 1}. {question.question}</h3>
+                      <div className="sm-quiz-options">
+                        {question.options.map((option, optionIndex) => {
+                          const answerKey = `${lessonIndex}:${questionIndex}`;
+                          const isSelected = Number(answers[answerKey]) === optionIndex;
+                          return (
+                            <label
+                              className={`sm-quiz-option ${isSelected ? "selected" : ""}`}
+                              key={option}
+                            >
+                              <input
+                                type="radio"
+                                name={`quiz-${course.id}-${lessonIndex}-${questionIndex}`}
+                                checked={isSelected}
+                                onChange={() => {
+                                  setAnswers((previous) => ({ ...previous, [answerKey]: optionIndex }));
+                                  setQuizMessage("");
+                                  setQuizPassed(false);
+                                }}
+                              />
+                              <span className="sm-option-letter">{String.fromCharCode(65 + optionIndex)}</span>
+                              <span>{option}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
                   ))}
                 </div>
                 {quizMessage && (
@@ -1127,11 +1299,11 @@ function CourseView({
                   </div>
                 )}
                 <div className="sm-quiz-footer">
-                  <p><LockKeyhole size={15} /> {videoEnded ? "Video finished — you can submit your answer." : "Finish the video before completing this lesson."}</p>
+                  <p><LockKeyhole size={15} /> {videoEnded ? "Score at least 70% to pass this quiz." : "Finish the video before submitting the quiz."}</p>
                   <button
                     className="sm-primary-button"
                     onClick={submitQuiz}
-                    disabled={answers[lessonIndex] === undefined || !videoEnded || isCompleted}
+                    disabled={quiz.some((_, index) => answers[`${lessonIndex}:${index}`] === undefined) || !videoEnded || isCompleted}
                   >
                     {isCompleted ? "Lesson completed" : "Submit answer"} <ChevronRight size={17} />
                   </button>
@@ -1149,52 +1321,9 @@ function CourseView({
               </>
             )}
           </section>
+          )}
         </div>
 
-        <aside className="sm-lesson-list-panel">
-          <button className="sm-lesson-list-heading" onClick={() => setLessonListOpen((value) => !value)}>
-            <span><BookOpen size={19} /><strong>Course lessons</strong></span>
-            <ChevronRight className={lessonListOpen ? "sm-chevron-open" : ""} size={17} />
-          </button>
-          <div className="sm-course-list-progress">
-            <div><span>Course progress</span><strong>{course.percent ?? 0}%</strong></div>
-            <div className="sm-progress-track"><span style={{ width: `${videos.length ? Math.round((videos.filter((_, index) => completed[`${course.id}:${index}`]).length / videos.length) * 100) : 0}%`, background: course.color }} /></div>
-          </div>
-          {lessonListOpen && (
-            <div className="sm-lesson-items">
-              {!videos.length ? (
-                <p className="sm-muted sm-lesson-empty">Loading lessons from YouTube...</p>
-              ) : (
-                videos.map((videoId, index) => {
-                  const done = completed[`${course.id}:${index}`] === true;
-                  const unlocked = isLessonUnlocked(course.id, index);
-                  const active = index === lessonIndex;
-                  return (
-                    <button
-                      key={`${videoId}-${index}`}
-                      className={`sm-lesson-item ${active ? "active" : ""} ${!unlocked ? "locked" : ""}`}
-                      disabled={!unlocked}
-                      onClick={() => selectLesson(index)}
-                    >
-                      <span className="sm-lesson-number">
-                        {done ? <CheckCircle2 size={18} /> : unlocked ? <PlayCircle size={18} /> : <LockKeyhole size={16} />}
-                      </span>
-                      <span className="sm-lesson-item-copy">
-                        <strong>Lesson {index + 1}</strong>
-                        <small>{done ? "Completed" : unlocked ? "Available" : "Locked"}</small>
-                      </span>
-                      {active && <span className="sm-lesson-active-indicator" />}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          )}
-          <div className="sm-lesson-list-foot">
-            <LockKeyhole size={16} />
-            <p>Pass each quiz after finishing its video to unlock the next lesson.</p>
-          </div>
-        </aside>
       </div>
       {loading && <p className="sm-muted sm-loading-note">Syncing saved progress...</p>}
     </>
@@ -1233,7 +1362,7 @@ function ProgressPage({ courses, completedCount, totalLessons, overallPercent, l
         ))}
       </div>
       {loading && <p className="sm-muted">Loading saved progress...</p>}
-      {!totalLessons && <div className="sm-info-note"><PlayCircle size={19} /><div><strong>Load your first playlist</strong><p>Open a course so SkillMap can count its available lessons.</p></div></div>}
+      {!totalLessons && <div className="sm-info-note"><PlayCircle size={19} /><div><strong>No local lessons available</strong><p>Add course videos to make lessons available.</p></div></div>}
     </>
   );
 }
@@ -1245,7 +1374,7 @@ function AchievementsPage({ courses, completedCount, totalLessons }) {
     { title: "Getting Consistent", text: "Complete five lessons.", icon: Flame, unlocked: completedCount >= 5 },
     { title: "Knowledge Builder", text: "Complete ten lessons.", icon: BookOpen, unlocked: completedCount >= 10 },
     { title: "Course Finisher", text: "Finish every lesson in a course.", icon: Trophy, unlocked: finishedCourses >= 1 },
-    { title: "Creative Explorer", text: "Load both course playlists.", icon: Sparkles, unlocked: courses.every((course) => course.lessonCount > 0) },
+    { title: "Creative Explorer", text: "Complete both creative courses.", icon: Sparkles, unlocked: courses.every((course) => course.lessonCount > 0) },
     { title: "SkillMap Champion", text: "Complete every loaded lesson.", icon: GraduationCap, unlocked: totalLessons > 0 && completedCount >= totalLessons },
   ];
 
