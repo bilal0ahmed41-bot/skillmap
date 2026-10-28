@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -25,6 +24,7 @@ import {
   KeyRound,
   Eye,
   EyeOff,
+  Compass,
 } from "lucide-react";
 import { supabase } from "./supabase";
 import "./styles.css";
@@ -48,7 +48,7 @@ const COURSES = [
     description: "Learn photo editing, selections, layers, and creative design.",
     videos: PHOTOSHOP_VIDEOS,
     icon: "PS",
-    color: "#4f8cff",
+    color: "#4D9DFF",
     lessonsLabel: "Photoshop",
   },
   {
@@ -57,7 +57,7 @@ const COURSES = [
     description: "Learn vector graphics, shapes, typography, and illustration.",
     videos: [],
     icon: "Ai",
-    color: "#ff9d45",
+    color: "#7667FF",
     lessonsLabel: "Illustrator",
   },
 ];
@@ -160,6 +160,11 @@ function readTheme() {
     return "dark";
   }
 }
+
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+};
 
 function App() {
   const [session, setSession] = useState(null);
@@ -396,7 +401,6 @@ function App() {
     }
   };
 
-
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) setAuthMessage(error.message);
@@ -509,7 +513,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="sm-loading-screen">
-        <div className="sm-brand-mark">S</div>
+        <div className="sm-brand-mark"><Compass size={22} /></div>
         <p>Loading SkillMap...</p>
       </div>
     );
@@ -519,7 +523,7 @@ function App() {
     return (
       <div className={`sm-auth-shell ${dark ? "sm-dark" : "sm-light"}`}>
         <div className="sm-auth-brand">
-          <div className="sm-brand-mark">S</div>
+          <div className="sm-brand-mark"><Compass size={22} /></div>
           <span>SkillMap</span>
         </div>
 
@@ -709,10 +713,10 @@ function App() {
 
       <aside className={`sm-sidebar ${mobileSidebarOpen ? "sm-sidebar-open" : ""}`}>
         <div className="sm-sidebar-brand">
-          <div className="sm-brand-mark">S</div>
+          <div className="sm-brand-mark"><Compass size={22} /></div>
           <div>
             <strong>SkillMap</strong>
-            <span>LEARN. BUILD. GROW.</span>
+            <span>LEARN • BUILD • GROW</span>
           </div>
           <button
             className="sm-icon-button sm-mobile-close"
@@ -830,7 +834,7 @@ function App() {
               currentVideo={currentVideo}
               completed={completed}
               videoEnded={videoEnded}
-setVideoEnded={setVideoEnded}
+              setVideoEnded={setVideoEnded}
               quiz={quiz}
               answers={answers}
               setAnswers={setAnswers}
@@ -922,7 +926,7 @@ function Dashboard({
       <section className="sm-welcome-banner">
         <div className="sm-welcome-copy">
           <span className="sm-eyebrow"><Sparkles size={15} /> YOUR LEARNING SPACE</span>
-          <h1>Welcome back, {name || "Learner"} <span>✦</span></h1>
+          <h1>{greeting()}, {name || "Learner"} <span>✦</span></h1>
           <p>Every lesson is progress. Keep learning and build something great.</p>
           <button className="sm-primary-button" onClick={() => setPage("skills")}>
             Explore your courses <ChevronRight size={18} />
@@ -949,14 +953,38 @@ function Dashboard({
       </div>
 
       <div className="sm-section-heading sm-heading-row">
-        <div><h2>Continue learning</h2><p>Pick up a course and keep moving forward.</p></div>
+        <div><h2>Learning paths</h2><p>Pick up a course and keep moving forward.</p></div>
         <button className="sm-quiet-button" onClick={() => setPage("skills")}>View all <ChevronRight size={16} /></button>
       </div>
 
-      <div className="sm-course-grid">
-        {courses.map((course) => (
-          <CourseCard key={course.id} course={course} openCourse={openCourse} />
-        ))}
+      <div className="sm-paths-layout">
+        <aside className="sm-progress-card">
+          <span className="sm-card-label">Your progress</span>
+          <strong>{completedCount} / {totalLessons} lessons</strong>
+          <div className="sm-progress-track"><span style={{ width: `${overallPercent}%` }} /></div>
+        </aside>
+        <div className="sm-path-list">
+          {courses.map((course) => (
+            <button
+              key={course.id}
+              className="sm-path-row"
+              style={{ "--course-color": course.color }}
+              onClick={() => openCourse(course.id)}
+              disabled={!course.lessonCount}
+            >
+              <span className="sm-path-dot">{course.icon}</span>
+              <span className="sm-path-copy">
+                <strong>{course.title}</strong>
+                <small>
+                  {course.lessonCount
+                    ? `${course.completedCount} / ${course.lessonCount} lessons`
+                    : "Coming soon"}
+                </small>
+              </span>
+              <ChevronRight size={22} />
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="sm-bottom-grid">
@@ -1251,79 +1279,77 @@ function CourseView({
               )}
             </section>
           ) : (
-
-          <section className="sm-quiz-panel">
-            <div className="sm-panel-heading">
-              <div><span className="sm-eyebrow">KNOWLEDGE CHECK</span><h2>Lesson quiz</h2></div>
-              <span className="sm-quiz-count">{quiz.length} questions</span>
-            </div>
-            {!videos.length ? (
-              <p className="sm-muted">The quiz is unavailable because this course has no videos.</p>
-            ) : (
-              <>
-                <div className="sm-quiz-questions">
-                  {quiz.map((question, questionIndex) => (
-                    <div className="sm-quiz-question" key={question.question}>
-                      <h3>{questionIndex + 1}. {question.question}</h3>
-                      <div className="sm-quiz-options">
-                        {question.options.map((option, optionIndex) => {
-                          const answerKey = `${lessonIndex}:${questionIndex}`;
-                          const isSelected = Number(answers[answerKey]) === optionIndex;
-                          return (
-                            <label
-                              className={`sm-quiz-option ${isSelected ? "selected" : ""}`}
-                              key={option}
-                            >
-                              <input
-                                type="radio"
-                                name={`quiz-${course.id}-${lessonIndex}-${questionIndex}`}
-                                checked={isSelected}
-                                onChange={() => {
-                                  setAnswers((previous) => ({ ...previous, [answerKey]: optionIndex }));
-                                  setQuizMessage("");
-                                  setQuizPassed(false);
-                                }}
-                              />
-                              <span className="sm-option-letter">{String.fromCharCode(65 + optionIndex)}</span>
-                              <span>{option}</span>
-                            </label>
-                          );
-                        })}
+            <section className="sm-quiz-panel">
+              <div className="sm-panel-heading">
+                <div><span className="sm-eyebrow">KNOWLEDGE CHECK</span><h2>Lesson quiz</h2></div>
+                <span className="sm-quiz-count">{quiz.length} questions</span>
+              </div>
+              {!videos.length ? (
+                <p className="sm-muted">The quiz is unavailable because this course has no videos.</p>
+              ) : (
+                <>
+                  <div className="sm-quiz-questions">
+                    {quiz.map((question, questionIndex) => (
+                      <div className="sm-quiz-question" key={question.question}>
+                        <h3>{questionIndex + 1}. {question.question}</h3>
+                        <div className="sm-quiz-options">
+                          {question.options.map((option, optionIndex) => {
+                            const answerKey = `${lessonIndex}:${questionIndex}`;
+                            const isSelected = Number(answers[answerKey]) === optionIndex;
+                            return (
+                              <label
+                                className={`sm-quiz-option ${isSelected ? "selected" : ""}`}
+                                key={option}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`quiz-${course.id}-${lessonIndex}-${questionIndex}`}
+                                  checked={isSelected}
+                                  onChange={() => {
+                                    setAnswers((previous) => ({ ...previous, [answerKey]: optionIndex }));
+                                    setQuizMessage("");
+                                    setQuizPassed(false);
+                                  }}
+                                />
+                                <span className="sm-option-letter">{String.fromCharCode(65 + optionIndex)}</span>
+                                <span>{option}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                  {quizMessage && (
+                    <div className={`sm-quiz-message ${quizPassed ? "success" : ""}`} role="status">
+                      {quizMessage}
                     </div>
-                  ))}
-                </div>
-                {quizMessage && (
-                  <div className={`sm-quiz-message ${quizPassed ? "success" : ""}`} role="status">
-                    {quizMessage}
+                  )}
+                  <div className="sm-quiz-footer">
+                    <p><LockKeyhole size={15} /> {videoEnded ? "Score at least 70% to pass this quiz." : "Finish the video before submitting the quiz."}</p>
+                    <button
+                      className="sm-primary-button"
+                      onClick={submitQuiz}
+                      disabled={quiz.some((_, index) => answers[`${lessonIndex}:${index}`] === undefined) || !videoEnded || isCompleted}
+                    >
+                      {isCompleted ? "Lesson completed" : "Submit answer"} <ChevronRight size={17} />
+                    </button>
                   </div>
-                )}
-                <div className="sm-quiz-footer">
-                  <p><LockKeyhole size={15} /> {videoEnded ? "Score at least 70% to pass this quiz." : "Finish the video before submitting the quiz."}</p>
-                  <button
-                    className="sm-primary-button"
-                    onClick={submitQuiz}
-                    disabled={quiz.some((_, index) => answers[`${lessonIndex}:${index}`] === undefined) || !videoEnded || isCompleted}
-                  >
-                    {isCompleted ? "Lesson completed" : "Submit answer"} <ChevronRight size={17} />
-                  </button>
-                </div>
-                {isCompleted && (
-                  <div className="sm-next-lesson-row">
-                    <div><CheckCircle2 size={20} /><span><strong>Great work!</strong><small>This lesson is complete.</small></span></div>
-                    {lessonIndex + 1 < videos.length ? (
-                      <button className="sm-secondary-button" onClick={goToNextLesson}>Next lesson <ChevronRight size={17} /></button>
-                    ) : (
-                      <span className="sm-success-text">Last lesson completed</span>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </section>
+                  {isCompleted && (
+                    <div className="sm-next-lesson-row">
+                      <div><CheckCircle2 size={20} /><span><strong>Great work!</strong><small>This lesson is complete.</small></span></div>
+                      {lessonIndex + 1 < videos.length ? (
+                        <button className="sm-secondary-button" onClick={goToNextLesson}>Next lesson <ChevronRight size={17} /></button>
+                      ) : (
+                        <span className="sm-success-text">Last lesson completed</span>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
           )}
         </div>
-
       </div>
       {loading && <p className="sm-muted sm-loading-note">Syncing saved progress...</p>}
     </>
@@ -1463,4 +1489,4 @@ function EmptyState({ icon: Icon, title, text }) {
   );
 }
 
-createRoot(document.getElementById("root")).render(<App />); 
+createRoot(document.getElementById("root")).render(<App />);

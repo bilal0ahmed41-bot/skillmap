@@ -414,3 +414,214 @@ p { line-height: 1.7; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/* Reference-inspired midnight workspace theme */
+:root {
+  --sm-primary: #8b7bff;
+  --sm-primary-hover: #a89cff;
+  --sm-primary-ink: #fff;
+  --sm-radius: 14px;
+}
+
+.sm-app.sm-dark, .sm-auth-shell.sm-dark, .sm-loading-screen:has(.sm-brand-mark) {
+  --sm-bg: #070d1d;
+  --sm-surface: #0c1528;
+  --sm-surface-2: #101d34;
+  --sm-surface-3: #152541;
+  --sm-text: #f5f7ff;
+  --sm-muted: #93a2bd;
+  --sm-border: #203252;
+  --sm-shadow: 0 16px 38px rgba(0, 0, 0, .22);
+  --sm-shadow-lg: 0 24px 70px rgba(0, 0, 0, .38);
+}
+
+.sm-app.sm-light, .sm-auth-shell.sm-light {
+  --sm-bg: #f5f7fc;
+  --sm-surface: #fff;
+  --sm-surface-2: #f5f7fd;
+  --sm-surface-3: #e9edfa;
+  --sm-text: #17213a;
+  --sm-muted: #69758e;
+  --sm-border: #dce3f2;
+}
+
+.sm-brand-mark {
+  border-radius: 12px;
+  background: linear-gradient(145deg, #9b8cff, #5f52dd);
+  color: #fff;
+  box-shadow: 0 8px 25px rgba(116, 99, 255, .35);
+}
+
+.sm-auth-shell {
+  background:
+    radial-gradient(ellipse at 18% 22%, rgba(119, 96, 255, .16), transparent 38%),
+    radial-gradient(ellipse at 86% 85%, rgba(34, 211, 238, .08), transparent 34%),
+    var(--sm-bg);
+}
+
+.sm-app .sm-primary-button, .sm-auth-shell .sm-primary-button {
+  border-color: #8171f5;
+  background: linear-gradient(135deg, #9587ff, #6859e7);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(105, 88, 231, .28);
+}
+.sm-app .sm-primary-button:hover, .sm-auth-shell .sm-primary-button:hover {
+  border-color: #a99eff;
+  background: linear-gradient(135deg, #a99eff, #7566f2);
+}
+
+.sm-sidebar {
+  background: #091226;
+  border-right-color: #1b2b4a;
+}
+.sm-sidebar-brand strong { color: #fff; }
+.sm-sidebar-brand span { color: #7f91b1; }
+.sm-nav-label { color: #627594; }
+.sm-app .sm-nav-item, .sm-app .sm-course-nav { color: #8798b6; }
+.sm-app .sm-nav-item:hover, .sm-app .sm-course-nav:hover {
+  background: #101e37;
+  color: #dce5ff;
+}
+.sm-app .sm-nav-item.active {
+  border-color: #7567ed55;
+  background: linear-gradient(90deg, #7869ee28, #7869ee0a);
+  color: #aa9fff;
+}
+.sm-nav-active-dot { background: #887bff; box-shadow: 0 0 12px #887bff; }
+.sm-app .sm-course-nav.active { background: #101e37; color: #edf1ff; }
+.sm-sidebar-tip {
+  border-color: #5f52dd55;
+  background: linear-gradient(135deg, #6e5fec24, transparent);
+}
+.sm-tip-icon { background: #7769ef2a; color: #a99fff; }
+
+.sm-topbar {
+  border-bottom-color: #1d2c49;
+  background: color-mix(in srgb, #070d1d 90%, transparent);
+}
+.sm-status-pill { border-color: #263a5e; background: #0c172d; }
+.sm-status-pill > span { background: #28d7bd; box-shadow: 0 0 0 3px #28d7bd20; }
+
+.sm-welcome-banner {
+  border-color: #5549bb;
+  background:
+    radial-gradient(ellipse at 78% 25%, #7c6cff42, transparent 34%),
+    radial-gradient(ellipse at 100% 100%, #22d3ee18, transparent 38%),
+    linear-gradient(120deg, #121b42, #131c3b 70%, #13284b);
+}
+.sm-welcome-copy .sm-eyebrow { color: #a9a0ff; }
+.sm-welcome-copy h1 span { color: #a9a0ff; }
+.sm-welcome-copy p { color: #b6c1dc; }
+.sm-welcome-copy .sm-primary-button { background: #8d7fff; border-color: #8d7fff; color: #fff; }
+.sm-art-ring { border-color: #8276ff66; }
+.sm-ring-two { border-color: #22d3ee66; }
+.sm-art-center { border-color: #8d7fff80; background: linear-gradient(145deg, #8d7fff3d, #22d3ee12); color: #b4adff; }
+.sm-art-spark { color: #73e5f2; }
+
+.sm-stat-icon, .sm-auth-icon, .sm-course-app-icon, .sm-course-mini-icon {
+  background: #8476ff18;
+  border-color: #8476ff45;
+  color: #a99fff;
+}
+.sm-progress-track { background: #182945; }
+.sm-progress-track > span { background: linear-gradient(90deg, #7869ef, #2ed3d0); }
+.sm-course-card:hover { border-color: #7568ee8c; }
+.sm-course-tag { border-color: #27395d; background: #111f39; }
+.sm-course-open-button { color: #a99fff !important; }
+.sm-panel, .sm-course-card, .sm-stat-card, .sm-settings-card, .sm-progress-course, .sm-achievement-card {
+  background: #0c1528;
+}
+.sm-achievement-card.unlocked { border-color: #7568ee70; }
+.sm-achievement-card.unlocked .sm-achievement-icon { background: #7568ee24; color: #a99fff; }
+
+@media (max-width: 760px) {
+  .sm-sidebar { background: #091226; }
+  .sm-welcome-art { opacity: .48; }
+}
+/* ===== SkillMap brand theme — paste at the VERY END of styles.css =====
+   Replaces the "Reference-inspired midnight workspace theme" block's look.
+   You can delete that old block (the last one) if you want a cleaner file. */
+
+:root {
+  --sm-primary: #7667FF;        /* Electric Purple */
+  --sm-primary-hover: #8d80ff;
+  --sm-blue: #4D9DFF;           /* Bright Blue */
+  --sm-mint: #38D6B0;           /* Mint = success */
+}
+
+.sm-app.sm-dark, .sm-auth-shell.sm-dark, .sm-loading-screen:has(.sm-brand-mark) {
+  --sm-bg: #0B1020;             /* Deep Navy */
+  --sm-surface: #141a30;
+  --sm-surface-2: #101730;
+  --sm-surface-3: #1d2644;
+  --sm-text: #F4F6FF;           /* Soft White */
+  --sm-muted: #AAB4D0;          /* Muted Blue-Grey */
+  --sm-border: #232c4a;
+}
+.sm-app.sm-light, .sm-auth-shell.sm-light {
+  --sm-bg: #f4f6ff; --sm-surface: #fff; --sm-surface-2: #f6f8ff;
+  --sm-surface-3: #e8ecfb; --sm-text: #0B1020; --sm-muted: #5b6785; --sm-border: #dbe1f5;
+}
+
+/* Use theme variables so BOTH dark and light work (old block hard-coded dark navy) */
+.sm-sidebar { background: var(--sm-surface-2); border-right-color: var(--sm-border); }
+.sm-sidebar-brand strong { color: var(--sm-text); }
+.sm-topbar { border-bottom-color: var(--sm-border); background: color-mix(in srgb, var(--sm-bg) 90%, transparent); }
+.sm-panel, .sm-course-card, .sm-stat-card, .sm-settings-card,
+.sm-progress-course, .sm-achievement-card { background: var(--sm-surface); }
+.sm-status-pill, .sm-course-tag { background: var(--sm-surface-2); border-color: var(--sm-border); }
+.sm-app .sm-nav-item:hover, .sm-app .sm-course-nav:hover,
+.sm-app .sm-course-nav.active { background: var(--sm-surface-3); color: var(--sm-text); }
+
+/* Brand mark = compass logo */
+.sm-brand-mark { background: var(--sm-primary); color: #fff; box-shadow: 0 8px 22px #7667ff40; }
+
+/* Flat purple buttons like the mockup */
+.sm-app .sm-primary-button, .sm-auth-shell .sm-primary-button {
+  background: var(--sm-primary); border-color: var(--sm-primary); color: #fff; box-shadow: none;
+}
+.sm-app .sm-primary-button:hover, .sm-auth-shell .sm-primary-button:hover {
+  background: var(--sm-primary-hover); border-color: var(--sm-primary-hover);
+}
+
+/* Replace leftover emerald accents */
+button:focus-visible, input:focus-visible { outline-color: #4D9DFF99; }
+.sm-app input:focus, .sm-auth-shell input:focus { border-color: var(--sm-primary); box-shadow: 0 0 0 3px #7667ff22; }
+.sm-app button:not(:disabled):hover, .sm-auth-shell button:not(:disabled):hover { border-color: #7667ff99; }
+.sm-auth-message, .sm-info-note, .sm-quiz-message.success, .sm-quiz-option.selected,
+.sm-next-lesson-row { border-color: #7667ff45; background: #7667ff14; }
+.sm-app .sm-course-lesson-card.recommended { border-color: #7667ff80; background: linear-gradient(145deg, #7667ff1a, var(--sm-surface) 65%); }
+.sm-course-lesson-card.recommended .sm-course-lesson-icon { background: #7667ff22; color: var(--sm-primary); }
+.sm-eyebrow, .sm-text-button, .sm-quiet-button, .sm-course-open-button { color: var(--sm-primary) !important; }
+
+/* Success / completion = mint */
+.sm-complete-pill, .sm-success-text { color: var(--sm-mint); }
+.sm-status-pill > span { background: var(--sm-mint); box-shadow: 0 0 0 3px #38d6b030; }
+.sm-activity-dot { background: #38d6b01c; color: var(--sm-mint); }
+.sm-progress-track { background: #2a3556; }
+.sm-progress-track > span { background: var(--sm-primary); }
+
+/* ===== New: "Your progress" card + Learning paths (from the mockup) ===== */
+.sm-paths-layout { display: grid; grid-template-columns: minmax(250px, 340px) minmax(0, 1fr); gap: 36px; align-items: start; }
+.sm-progress-card { padding: 24px 26px; border: 3px solid var(--sm-primary); border-radius: 28px; background: var(--sm-surface); }
+.sm-card-label { display: block; margin-bottom: 14px; color: var(--sm-muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.sm-progress-card > strong { display: block; margin-bottom: 16px; font-size: 28px; font-weight: 850; letter-spacing: -.04em; }
+.sm-progress-card .sm-progress-track { height: 12px; }
+
+.sm-path-list { display: grid; gap: 18px; }
+.sm-app .sm-path-row {
+  display: flex; align-items: center; gap: 20px; width: 100%; padding: 20px 28px;
+  border: 3px solid var(--course-color, var(--sm-primary)); border-radius: 28px;
+  background: var(--sm-surface); color: var(--sm-text); text-align: left;
+}
+.sm-app .sm-path-row:not(:disabled):hover { border-color: var(--course-color); background: var(--sm-surface-3); }
+.sm-path-dot { display: grid; place-items: center; flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; background: var(--course-color); color: #0B1020; font-weight: 850; }
+.sm-path-copy { display: grid; flex: 1; gap: 3px; }
+.sm-path-copy strong { font-size: 18px; font-weight: 600; }
+.sm-path-copy small { color: var(--sm-muted); font-size: 13px; }
+
+@media (max-width: 860px) {
+  .sm-paths-layout { grid-template-columns: 1fr; gap: 22px; }
+  .sm-app .sm-path-row { padding: 16px 18px; gap: 14px; }
+  .sm-path-dot { width: 44px; height: 44px; }
+}
